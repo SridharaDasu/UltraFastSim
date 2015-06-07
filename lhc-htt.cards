@@ -1,0 +1,38 @@
+! File: main06.cmnd
+! This file contains commands to be read in for a Pythia8 run. 
+! Lines not beginning with a letter or digit are comments.
+! Names are case-insensitive  -  but spellings-sensitive!
+! The changes here are illustrative, not always physics-motivated.
+
+! 1) Settings that could be used in a main program, if desired.
+Main:numberOfEvents = 5000         ! number of events to generate
+Main:numberToList = 1              ! number of events to print
+Main:timesToShow = 100             ! show how far along run is this many times
+Main:timesAllowErrors = 1000      ! abort run after this many flawed events
+Main:showChangedSettings = on      ! print changed flags/modes/parameters
+#Main:showAllSettings = on          ! print all flags/modes/parameters
+Main:showChangedParticleData = on  ! print changed particle and decay data
+#Main:showAllParticleData = on      ! print all particle and decay data
+
+! 2) Beam parameter settings. Values below agree with default ones.
+Beams:idA = 2212                   ! first beam, proton = 2212
+Beams:idB = 2212                   ! second beam, proton = 2212
+Beams:eCM = 14000.                ! CM energy of collision = 100 TeV
+
+! 3) Settings for process generation internal to Pythia8.
+!    Higgs (MH=125 GeV) production -- in this case dominated by ZH
+HiggsSM:all = on
+25:m0 = 125
+
+! 4) Optionally switch on hand-set cross section and Coulomb term.
+! Note: these values are illustrative only, not to be taken seriously.
+
+! 5) Switch off some key components of the simulation, for comparisons.
+#PartonLevel:all = off              ! stop after hard process 
+
+! 6) Make Z decay only to muons
+
+25:onMode = 0       ! H (25) decays to only taus (15)
+25:onIfMatch = 15 -15
+15:onMode = 2
+15:onIfAny = 13	

@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# Input processing
+#
+originalDir=`pwd`
+UFSDir=`dirname $0`
+if [ "$UFSDir" == "." ]; then
+    UFSDir=$originalDir
+fi
+
+echo $UFSDir
+cd $UFSDir
+eval `scram runtime -sh`
+jobName=$1
+nEvents=$2
+nEventsPerJob=$3
+pileupLevel=$4
+rdmseed=$5
+
+if [ $# -ne 5 ]; then
+    echo "Usage: ./farmoutJobs <jobName> <nEvents> <nEventsPerJob> <pileupLevel> <StartRndmSeed>";
+    exit 0;
+fi
+
+if [ "$6" != "" ]; then
+    startJobNumber=$5
+    echo "Starting from job number $startJobNumber"
+else
+    startJobNumber=0
+fi
+
+#
+# Create directory in hdfs if necessary for saving output
+# Make sure the parent directory for the job directory is already created
+# srmmkdir is not recursive AFAIK
+#
+
+SRM_SERVER=srm://cmssrm1.hep.wisc.edu:8443/srm/v2/server?SFN=
+FILE_DIR=/hdfs/store/user/$USER/UFS/$jobName
+
+if [ -d $FILE_DIR ]; then
+    echo "Using existing directory: $FILE_DIR"
+else
+    echo Executing srmmkdir $SRM_SERVER/$FILE_DIR
+    srmmkdir  $SRM_SERVER/$FILE_DIR
+    srmmkdirStatus=$?
+    if [ "$srmmkdirStatus" != "0" ]; then
+	echo "srmmkdir failed -- file not stored in HDFS"
+	exit $srmmkdirStatus
+    fi
+fi
+
+#
+# Job specification
+#
+Executable=$UFSDir/runJob.sh
+
+#
+# Loop setup
+#
+declare -i nEventsSubmitted=0
+declare -i job=$startJobNumber
+let mfact=2*$nEventsPerJob
+while (( $nEvents > $nEventsSubmitted )); do
+
+#
+# Name the files
+#
+    jobTag=$jobName-`printf "%4.4d" $job`
+    condor=`echo $jobTag | awk '{printf("%s.sub", $1)}'`
+    output=`echo $jobTag | awk '{printf("%s.out", $1)}'`
+    errout=`echo $jobTag | awk '{printf("%s.err", $1)}'`
+    logout=`echo $jobTag | awk '{printf("%s.log", $1)}'`
+    ntuple=`echo $jobTag | awk '{printf("%s.root", $1)}'`
+    cardf=`echo $jobTag | awk '{printf("%s.cards", $1)}'`
+#
+# Make and move to the correct directory
+#
+    runDir=/scratch/$USER/UltraFastSim/$jobName/$jobTag
+    mkdir -p $runDir
+    cd $runDir
+
+#
+# Prepare job input file
+#
+    sed -e "s|Random:seed =.*|Random:seed = $rdmseed|g" $UFSDir/cards/$jobName.cards > $cardf
+    sed -i -e "s|Main:numberOfEvents =.*|Main:numberOfEvents = $nEventsPerJob|g" $cardf
+    sed -i -e "s|Main:timesAllowErrors =.*|Main:timesAllowErrors = $nEventsPerJob|g" $cardf
+
+#
+# Prepare Condor Submit File For The job
+#
+    cat <<EOF > $condor
+Executable           = $Executable
+Arguments            = $UFSDir/generateData $jobName $nEventsPerJob $job $pileupLevel
+GetEnv               = true
+# tell glideins to run job with access to cvmfs (via parrot)
++RequiresCVMFS       = True
+X509UserProxy        = /tmp/x509up_u$UID
+Universe             = Vanilla
+output               = $output
+error                = $errout
+Log                  = $logout
+Notification         = never
+WhenToTransferOutput = On_Exit
+Transfer_Input_Files = $cardf
+on_exit_remove       = (ExitBySignal == FALSE && ExitStatus == 0)
++IsFastQueueJob      = True
+ImageSize            = 921600
++DiskUsage           = 2048000
+Requirements         = TARGET.Arch == "X86_64" && (MY.RequiresSharedFS=!=true || TARGET.HasAFS_OSG) && (TARGET.OSG_major =!= undefined || TARGET.IS_GLIDEIN=?=true) && IsSlowSlot=!=true && (TARGET.HasParrotCVMFS=?=true || (TARGET.UWCMS_CVMFS_Exists  && TARGET.CMS_CVMFS_Exists && TARGET.UWCMS_CVMFS_Revision >= 4559 && TARGET.CMS_CVMFS_Revision >= 506 )) && TARGET.Memory > 900 && TARGET.HasAFS
+Queue
+EOF
+
+#
+# Submit the job
+#
+    condor_submit $condor
+#
+# Increment counters
+#
+    let job=$job+1
+    let nEventsSubmitted=$nEventsSubmitted+$nEventsPerJob
+    let rdmseed=$rdmseed+$mfact
+done
+
+cd ..
+echo -n "Jobs for $jobName are created in "
+pwd
+cd $originalDir

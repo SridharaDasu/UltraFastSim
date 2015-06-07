@@ -1,0 +1,116 @@
+UltraFastSim
+------------
+
+This is a Pythia8 based package which takes generated particles,
+includes pileup for proton collisions, and smears them. It has
+rudimentary composite objects reconstructed, including jets made with
+fastjet and taus.  The tracks from the primary vertex and neutral
+deposits from the full piled up event are used to make jets.  Taus are
+made with a simplistic algorithm.  The output is written in a
+custom EventData object tree in ROOT format.
+
+There is also a small example analysis program included which makes
+histograms of UltraFastSim objects using ROOT.
+
+Building the package
+--------------------
+
+Using CMSSW versions of root, fastjet and Pythia8
+
+First time setup your CMSSW environment (example below)
+    cd
+    scram project CMSSW CMSSW_5_3_10_patch1
+    cd CMSSW_5_3_10_patch1
+    cmsenv
+    cvs -d /afs/hep.wisc.edu/cms/CVSRepository co UltraFastSim
+    cd UltraFastSim
+    make
+
+Upon future login:
+    cd ~/CMSSW_5_3_10_patch1
+    cd UltraFastSim
+    cmsenv
+
+When changes are made to the code:
+    make
+
+Running
+-------
+
+You can run ./generateData to produce events
+Make sure that you have done: cmsenv
+
+./generateData hfac-h.cards
+
+You can run the example ./analyzeData to analyze those events:
+
+./analyzeData
+histos.root
+hfac-h.root
+EOF
+
+You can then look at the histograms in the histos.root in ROOT
+
+root histos.root
+ > TBrowser b
+(use GUI to get to display your histograms)
+
+Condor Scripts to Generate Bulk Data
+------------------------------------
+
+To generate bulk data you can use the script farmoutJobs.sh
+You need to have installed your grid certificate
+You need to have obtained your grid certificate
+You need to have setup your run directory, e.g., 
+eval `scram runtime -sh` in a CMSSW area.
+The following will work:
+
+pushd ~dasu/CMSSW_5_3_10_patch1/; eval `scramv1 runtime -sh`; popd
+
+Then you can submit using the command:
+
+./farmoutJobs Zmm-v5 10000000 10000 50 4000
+
+to generate files using Zmm config tag to generateData.
+The files will be stored in the directory Zmm-v5-4000
+in your HDFS area.
+
+The second option specifies how many events.
+
+The third option specifies number of events per job
+
+The fourth option specifies the average number of pileup events
+
+The last option specifies the offset to the job number, so
+that you can generate additional jobs.
+
+I keep no more than 1000 jobs in a directory to keep pnfs happy.
+
+Note that the actual script used is to run the program is runJobs.sh,
+which is called by farmoutJobs.sh
+
+Condor to Analyze data
+======================
+
+./farmoutUFSAnalysisJobs <jobName> <inputDirectory> <numberOfFilesPerJob>
+
+e.g.,
+
+./farmoutUFSAnalysisJobs lhc-htt /hdfs/store/user/dasu/UFS/lhc-htt 10
+
+to analyze lhc-htt jobs from my HDFS directory concatenating 10 files per job.
+
+You need to have setup your run directory by running cmsenv 
+in your CMSSW_5_3_10_patch1 area.  You should use the script 
+from the directory with your analyzeData executable.  If
+you write a new analyzeData program, please do 
+	ln -s ../UltraFastSim/farmoutUFSAnalysisJobs .
+in that directory so that you have access to this script.
+
+Merging your data
+-----------------
+
+There is a generic script to merge root files.  I use it as:
+
+mergeFiles lhc-htt.root /scratch/dasu/UFSAnalysisData/lhc-htt
+

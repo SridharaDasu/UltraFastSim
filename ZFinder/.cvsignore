@@ -1,0 +1,6 @@
+ZFinder
+*.log
+*.dSYM
+*.root
+*.png
+eventdict.*

@@ -1,0 +1,2 @@
+VBFHXX-VBFHFinder-Plots.root
+/afs/hep.wisc.edu/home/dasu/CMSSW_4_2_6/UserCode/dasu/UltraFastSim/VBFHXX-PU010-0000.root

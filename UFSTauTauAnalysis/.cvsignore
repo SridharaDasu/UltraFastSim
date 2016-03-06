@@ -1,0 +1,5 @@
+analyzeData
+*.log
+*.dSYM
+*.root
+*.png

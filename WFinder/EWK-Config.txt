@@ -1,0 +1,6 @@
+EWK-ZFinder-Plots.root
+/afs/hep.wisc.edu/cms/dasu/harker/EWK-PU000-0000.root
+/afs/hep.wisc.edu/cms/dasu/harker/EWK-PU000-0001.root
+/afs/hep.wisc.edu/cms/dasu/harker/EWK-PU000-0002.root
+/afs/hep.wisc.edu/cms/dasu/harker/EWK-PU000-0003.root
+/afs/hep.wisc.edu/cms/dasu/harker/EWK-PU000-0004.root

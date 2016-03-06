@@ -1,0 +1,10 @@
+ZZTo4L-POWHEG-Plots.root
+/scratch/dasu/eeee/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/eemm/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/eett/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/mmmm/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/mmee/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/mmtt/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/tttt/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/ttee/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/ttmm/pwgevents.lhe-PU025-0000.root

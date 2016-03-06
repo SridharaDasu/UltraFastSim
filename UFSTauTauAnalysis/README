@@ -1,0 +1,30 @@
+Package for Analysis of UltraFastSim Data to reconstruct TauTau
+
+You should have already got UltraFastSim checked out.  You then
+do the following once to set yourself up:
+    cd ~/CMSSW_5_3_10_patch1
+    cvs -d /afs/hep.wisc.edu/cms/CVSRepository co UFSTauTauAnalysis
+    cd UFSTauTauAnalysis
+    make
+
+Upon future login:
+    cd ~/CMSSW_5_3_10_patch1
+    cd UFSTauTauAnalysis
+    cmsenv
+
+When changes are made to the code:
+    make
+
+To run the analysis:
+
+    ./analyzeData
+    histos.root
+    ../hfac-h.root
+    EOF
+
+that gets you a root file with histograms made from the
+UFS data.  You can list a bunch of files, that is why
+the program interface is a bit crazy.  We can clean 
+this up later.  hfac-h.root is just an example file
+that you created earlier in UltraFastSim.  
+

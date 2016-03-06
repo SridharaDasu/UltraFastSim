@@ -1,0 +1,6 @@
+ZHmmXX-ZFinder-Plots.root
+/hdfs/store/user/dasu/ZHmmXX/ZHmmXX-PU025-7000.root
+/hdfs/store/user/dasu/ZHmmXX/ZHmmXX-PU025-7001.root
+/hdfs/store/user/dasu/ZHmmXX/ZHmmXX-PU025-7002.root
+/hdfs/store/user/dasu/ZHmmXX/ZHmmXX-PU025-7003.root
+/hdfs/store/user/dasu/ZHmmXX/ZHmmXX-PU025-7004.root

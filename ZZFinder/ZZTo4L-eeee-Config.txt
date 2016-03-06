@@ -1,0 +1,3 @@
+ZZTo4L-eeee-Plots.root
+/scratch/dasu/eeee/eeee-0000/pwgevents.lhe-PU025-0000.root
+/scratch/dasu/eeee/eeee-0001/pwgevents.lhe-PU025-0001.root

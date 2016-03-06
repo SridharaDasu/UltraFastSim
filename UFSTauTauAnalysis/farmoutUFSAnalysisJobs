@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# Farmout analysis jobs selecting to combine selected number of input files per run
+#
+originalDir=`pwd`
+UFSDir=`dirname $0`
+if [ "$UFSDir" == "." ]; then
+    UFSDir=$originalDir
+fi
+
+echo $UFSDir
+cd $UFSDir
+eval `scram runtime -sh`
+
+jobName=$1
+inputDirectory=$2
+
+declare -i numberOfJobsPerRun=$3
+declare -i numberOfFiles=`ls -1 $inputDirectory/*.root | wc -l`
+let numberOfJobs=$numberOfFiles/$numberOfJobsPerRun+1
+
+echo "There are $numberOfFiles files, I will submit $numberOfJobs jobs"
+
+runBaseDir=/scratch/$USER/UFSAnalysisData/$jobName
+mkdir -p $runBaseDir/fragments
+cd $runBaseDir/fragments
+ls $inputDirectory/*.root | split -l $numberOfJobs -d - $jobName
+
+#
+# Job specification
+#
+Executable=$UFSDir/analyzeData
+
+#
+# Loop setup
+#
+for jobTagFile in `ls $runBaseDir/fragments`; do
+#
+# Name the files
+#
+  jobTag=`basename $jobTagFile`
+  condor=`echo $jobTag | awk '{printf("%s.sub", $1)}'`
+  output=`echo $jobTag | awk '{printf("%s.out", $1)}'`
+  errout=`echo $jobTag | awk '{printf("%s.err", $1)}'`
+  logout=`echo $jobTag | awk '{printf("%s.log", $1)}'`
+  ntuple=`echo $jobTag | awk '{printf("%s.root", $1)}'`
+  infile=`echo $jobTag | awk '{printf("%s.txt", $1)}'`
+  
+#
+# Make and move to the correct directory
+#
+  runDir=$runBaseDir/$jobTag
+  mkdir -p $runDir
+  cd $runDir
+  echo "$ntuple" > $infile
+  cat $runBaseDir/fragments/$jobTag >> $infile
+  echo "EOF" >> $infile
+  
+#
+# Prepare Condor Submit File For The job
+#
+  cat <<EOF > $condor
+Executable           = $Executable
+GetEnv               = true
+X509UserProxy        = /tmp/x509up_u$UID
+Universe             = Vanilla
+input                = $infile
+output               = $output
+error                = $errout
+Log                  = $logout
+Notification         = never
+WhenToTransferOutput = On_Exit
+Transfer_Input_Files = $infile
+on_exit_remove       = (ExitBySignal == FALSE && ExitStatus == 0)
+Requirements         = TARGET.HasAFS
+Queue
+EOF
+  
+#
+# Submit the job
+#
+  condor_submit $condor
+done
+
+cd ..
+echo -n "Jobs for $jobName are created in "
+cd ..
+pwd
+cd $originalDir

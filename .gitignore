@@ -1,0 +1,10 @@
+*~
+*.o
+*.a
+*.so
+*.root
+*.pyc
+generateData
+analyzeData
+eventdict.cc
+eventdict_rdict.pcm

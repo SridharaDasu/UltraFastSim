@@ -1,0 +1,6 @@
+VBFHiggsFinder
+*.log
+*.dSYM
+*.root
+*.png
+eventdict.*

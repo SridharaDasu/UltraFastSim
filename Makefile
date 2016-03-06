@@ -4,12 +4,12 @@ LD            = g++
 LDFLAGS       = $(OPT2)
 SOFLAGS       = -dynamiclib -single_module -undefined $(UNDEFOPT)
 
-PYINCLUDES = -I$(PYTHIA8DATA)/../../../include
-PYLDLIBS = -L$(PYTHIA8DATA)/../../../lib -lpythia8
+PYINCLUDES ?= -I`pythia8-config --includedir`
+PYLDLIBS ?= -L`pythia8-config --libdir` -lpythia8
 
 FASTJET ?= $(ROOTSYS)/../../../external/fastjet/3.1.0-odfocd/
-FASTJETINCLUDES = -I$(FASTJET)/include
-FASTJETLDLIBS = -L$(FASTJET)/lib/ -lfastjet
+FASTJETINCLUDES ?= -I$(FASTJET)/include
+FASTJETLDLIBS ?= -L$(FASTJET)/lib/ -lfastjet
 
 ROOTINCLUDES = -I$(ROOTSYS)/include
 ROOTLDLIBS = `$(ROOTSYS)/bin/root-config --cflags --glibs` -lEG
@@ -51,4 +51,4 @@ UFSFilter.cc : UFSFilter.h
 	@echo Compiled $@
 
 eventdict.cc : UltraFastSim.h
-	rootcint -f eventdict.cc -c EventData.h LinkDef.h
+	rootcling -f eventdict.cc -c EventData.h LinkDef.h

@@ -2,8 +2,9 @@
 *.o
 *.a
 *.so
-*.root
 *.pyc
+*.dSYM
+*.root
 generateData
 analyzeData
 eventdict.cc
